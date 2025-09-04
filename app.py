@@ -1,6 +1,6 @@
-
+# app.py
 from flask import Flask, request, jsonify
-from tickets_tracker import TicketTracker
+from ticket_tracker import TicketTracker 
 
 app = Flask(__name__)
 tracker = TicketTracker()  # Create one instance of our tracker
@@ -15,16 +15,23 @@ def webhook():
         is_changed, changes = tracker.receive_ticket(payload)
         ticket_id = payload.get('id') or payload.get('ticket_id')
 
+        # Type safety
+        if not isinstance(changes, dict):
+            print(f" Unexpected changes type: {type(changes)} - {changes}")
+            changes = {}
+
         # Log to console
-        if is_changed:
+        if is_changed and changes:
             print(f"\n CHANGES DETECTED in Ticket {ticket_id}:")
             for field, change in changes.items():
-                if field != "first_received":
-                    print(f"   {field}: '{change['old']}' → '{change['new']}'")
+                if field == "first_received":
+                    print(f"    {change}")
                 else:
-                    print(f"   {change}")
+                    old_val = change.get('old', 'N/A')
+                    new_val = change.get('new', 'N/A')
+                    print(f"   {field}: '{old_val}' → '{new_val}'") 
         else:
-            print(f"\n Ticket {ticket_id} updated (no changes)")
+            print(f"\n Ticket {ticket_id} updated (no changes detected)")
 
         return jsonify({
             "received": True,
@@ -40,20 +47,20 @@ def webhook():
 def get_tickets():
     tickets = tracker.get_all_tickets()
 
-    #Optional filter by status
-    status_filter = request.args.get('step')
+    # Fixed: was 'step', should be 'status'
+    status_filter = request.args.get('status')
     if status_filter:
         filtered_tickets = {}
         for tid, ticket in tickets.items():
-            if ticket.get('step') == status_filter:
+            if ticket.get('status') == status_filter:
                 filtered_tickets[tid] = ticket
         return jsonify(filtered_tickets)
-    
+
     return jsonify(tickets)
 
 @app.route('/tickets/<ticket_id>', methods=['GET'])
 def get_ticket(ticket_id):
-    ticket = tracker.get_ticket(ticket_id)
+    ticket = tracker.get_ticket(ticket_id)  
     if not ticket:
         return jsonify({"error": "Ticket not found"}), 404
     return jsonify(ticket)

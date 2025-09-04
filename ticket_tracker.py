@@ -48,7 +48,7 @@ class TicketTracker:
       return{"first_received: " "This is the first time this ticket has been received"}
     
     for key, new_value in new_ticket.items():
-      old_value = new_ticket.get(key)
+      old_value = old_ticket.get(key)
       if old_value != new_value:
         changes[key] = {
           "old": old_value,
@@ -60,7 +60,7 @@ class TicketTracker:
     """Return all stored tickets"""
     return self.tickets
   
-  def get_tickets(self, ticket_id):
+  def get_ticket(self, ticket_id):
     """Get a single ticket  by ID"""
     return self.tickets.get(ticket_id)
   
