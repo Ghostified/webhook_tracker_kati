@@ -19,7 +19,7 @@ class TicketTracker:
     with open(self.db_file, 'w') as f:
       json.dump(self.tickets, f , indent=2)
 
-  def receive_tickets(self, payload):
+  def receive_ticket(self, payload):
     """
     Receive ticket payload, detect changes , and save
     Returns: (is_changed: bool, changes: dict)
