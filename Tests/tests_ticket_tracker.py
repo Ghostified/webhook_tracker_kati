@@ -13,5 +13,31 @@ class TestTicketTracker(unittest.TestCase):
     # Remove test DB if it exists
     if os.path.exists(TEST_DB):
       os.remove(TEST_DB)
-    #Create FResh Tracker
+    #Create fresh Tracker
+    self.tracker = TicketTracker(db_file=TEST_DB)
+
+  def tearDown(self):
+    """Run after each test"""
+    #Clean up test DB
+    if os.path.exists(TEST_DB):
+      os.remove(TEST_DB)
+
+  def test_receive_new_ticket(self):
+    """Test receiving a new ticket for the first time"""
+    payload = {
+      "id": "TICKET-100",
+      "status": "open",
+      "assignee": "Alice"
+    }
+
+    is_changed, changes = self.tracker.receive_ticket(payload)
+
+    #Check response
+    self.assertTrue(is_changed)
+    self.assertIn("first_received", changes)
+
+    #Check ticket was saved
+    saved = self.tracker.get_ticket("TICKET-100")
+    self.assertEqual(saved["status"], "open")
+    self.assertEqual(saved["assignee"], "Alice")
     
