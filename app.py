@@ -29,7 +29,23 @@ def webhook():
                 else:
                     old_val = change.get('old', 'N/A')
                     new_val = change.get('new', 'N/A')
-                    print(f"   {field}: '{old_val}' → '{new_val}'") 
+
+                    #special log for arrays
+                    if isinstance(old_val, list) and isinstance(new_val, list):
+                        added = [item for item in new_val if item not in old_val]
+                        removed = [item for item in old_val if item not in new_val]
+
+                        change_summary = []
+                        if added:
+                            change_summary.append(f"added {added}")
+                        if removed:
+                            change_summary.append(f"removed {removed}")
+                        if not added and not removed:
+                            change_summary = ["(reordered)"]
+
+                        print(f"    {field}: {change_summary}")
+                    else:
+                        print(f"   {field}: '{old_val}' to '{new_val}'") 
         else:
             print(f"\n Ticket {ticket_id} updated (no changes detected)")
 
