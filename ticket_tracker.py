@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from collections import Counter
 
 class TicketTracker:
   def __init__(self, db_file="tickets.json"):
@@ -49,12 +50,22 @@ class TicketTracker:
     
     for key, new_value in new_ticket.items():
       old_value = old_ticket.get(key)
+
+      #skip if both are blank /empty (treat " " and None as the same)
+      if self._is_blank(old_value) and self._is_blank(new_value):
+        continue
+
+      #Detect Meaningful change
       if old_value != new_value:
         changes[key] = {
           "old": old_value,
           "new": new_value
         }
     return changes
+  
+  def _is_blank(self, value):
+    """Helper function to check if value is none or an empty string"""
+    return value is None or value == ""
   
   def get_all_tickets(self):
     """Return all stored tickets"""
