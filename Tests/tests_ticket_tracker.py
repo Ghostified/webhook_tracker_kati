@@ -35,9 +35,26 @@ class TestTicketTracker(unittest.TestCase):
     #Check response
     self.assertTrue(is_changed)
     self.assertIn("first_received", changes)
+    self.assertEqual(changes["first_received"], "This is the first time this tecket has been received")
 
     #Check ticket was saved
     saved = self.tracker.get_ticket("TICKET-100")
     self.assertEqual(saved["status"], "open")
     self.assertEqual(saved["assignee"], "Alice")
+
+  def  test_detect_status_change(self):
+    """Test if  status change  is detected"""
+    self.tracker.receive_ticket({
+      "ticket_id": "TICKET-200",
+      "status": "open",
+      "assignee": "Bob"
+      "priority": "low"
+    })
+
+    updated = {
+      "ticket_id": "TICKET-200",
+      "status": "in - progress",
+      "assignee": "Alice",
+      "priority": "low"
+    }
     
