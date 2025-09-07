@@ -55,8 +55,8 @@ class TicketTracker:
       if self._is_blank(old_value) and self._is_blank(new_value):
         continue
 
-      #Detect Meaningful change
-      if old_value != new_value:
+      #Use deep comparison (to handle lists, dicts etc)
+      if not self._values_equal(old_value, new_value):
         changes[key] = {
           "old": old_value,
           "new": new_value
@@ -66,6 +66,47 @@ class TicketTracker:
   def _is_blank(self, value):
     """Helper function to check if value is none or an empty string"""
     return value is None or value == ""
+  
+  def _values_equal(self, val1, val2):
+    """
+    deep comparison that ignores order for list
+    Handles strings, numbers, lists and dicts
+    """
+    #same object or both None
+    if val1 is val2:
+      return True
+    if val1 is None or val2 is None:
+      return False
+    
+    #Handle Lists : compare ads unordered
+    if isinstance(val1, list) and isinstance(val2, list):
+      return self._unordered_list_equal(val1,val2)
+    
+    #Handle Dicts: compare via sorted json
+    if isinstance(val1, dict) and isinstance(val2, dict):
+      return json.dumps(val1, sort_keys=True, separators=(',', ':')) == \
+            json.dumps(val2, sort_keys=True, separators=(',', ':'))
+    
+    #default comparisons 
+    return val1 == val2
+  
+  def _unordered_lists_equal(self, list1, list2):
+    """Compare two lists without order , even with dicts inside"""
+    if len(list1) != len(list2):
+      return False
+    
+    def make_hashable(item):
+      if isinstance(item, dict):
+        return json.dumps(item, sort_keys=True, separators=(',', ':'))
+      elif isinstance(item, list):
+        return tuple(make_hashable(x) for x in item)
+      return item
+    
+    hashed1 = [make_hashable(item) for item in list1]
+    hashed2 = [make_hashable(item) for item in list2]
+
+    return Counter(hashed1) == Counter(hashed2)
+
   
   def get_all_tickets(self):
     """Return all stored tickets"""
