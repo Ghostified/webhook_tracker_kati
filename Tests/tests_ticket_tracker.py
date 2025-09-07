@@ -47,7 +47,7 @@ class TestTicketTracker(unittest.TestCase):
     self.tracker.receive_ticket({
       "ticket_id": "TICKET-200",
       "status": "open",
-      "assignee": "Bob"
+      "assignee": "Bob",
       "priority": "low"
     })
 
@@ -57,4 +57,18 @@ class TestTicketTracker(unittest.TestCase):
       "assignee": "Alice",
       "priority": "low"
     }
+
+    is_changed, changes = self.tracker.receive_ticket(updated)
+
+    self.assertTrue(is_changed)
+    self.assertIn("status", changes)
+    self.assertIn("assigneee", changes)
+    self.assertIn("priority",changes)
+    self.assertEqual(changes["status"]["new"],"in-progress")
+    self.assertEqual(changes["assignee"]["new"],"charlie")
+    self.assertEqual(changes["priority"]["new"],"high")
+
+  def test_array_reordering_no_change(self):
+    """Test that array re-ordering does not trigger change (order -insensitive)"""
+
     
