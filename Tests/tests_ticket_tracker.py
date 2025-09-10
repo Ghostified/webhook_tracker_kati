@@ -70,6 +70,4 @@ class TestTicketTracker(unittest.TestCase):
 
   def test_array_reordering_no_change(self):
     """Test that array re-ordering does not trigger change (order -insensitive)"""
-    """Test that array re-ordering does not trigger change (order -insensitive)"""
-
     
