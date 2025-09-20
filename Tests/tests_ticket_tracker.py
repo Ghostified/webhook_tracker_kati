@@ -39,21 +39,21 @@ class TestTicketTracker(unittest.TestCase):
 
     #Check ticket was saved
     saved = self.tracker.get_ticket("TICKET-100")
-    self.assertEqual(saved["status"], "open")
-    self.assertEqual(saved["assignee"], "Alice")
+    self.assertIsNone(saved)
+    self.assertEqual(saved["step"], "open")
 
   def  test_detect_status_change(self):
     """Test if  status change  is detected"""
     self.tracker.receive_ticket({
-      "ticket_id": "TICKET-200",
-      "status": "open",
+      "ticket_id": "TICKET-100",
+      "step": "open",
       "assignee": "Bob",
       "priority": "low"
     })
 
     updated = {
-      "ticket_id": "TICKET-200",
-      "status": "in - progress",
+      "ticket_id": "TICKET-100",
+      "step": "closed",
       "assignee": "Alice",
       "priority": "low"
     }
@@ -61,12 +61,50 @@ class TestTicketTracker(unittest.TestCase):
     is_changed, changes = self.tracker.receive_ticket(updated)
 
     self.assertTrue(is_changed)
-    self.assertIn("status", changes)
-    self.assertIn("assigneee", changes)
+    self.assertIn("step", changes)
+    self.assertEqual(changes["step"]["old"],"open")
+    self.assertEqual(changes["step"]["new"],"closed")
+
+  def test_no_change_when_data_same(self):
+    """Test no change is detected when data is identical"""
+    payload = {
+      "ticket_id": "TICKET-300",
+      "step": "closed",
+      "note": "bug"
+    }
+    self.tracker.receive_ticket(payload)
+
+    is_changed, changes = self.tracker.receive_ticket(payload)
+
+    self.assertFalse(is_changed)
+    self.assertEqual(changes, {})
+
+  def test_detect_multiple_changes(self):
+    """Test Multiple fields changing at once"""
+    self.tracker.receive_ticket({
+      "ticket_id": "TICKET-400",
+      "step": "open",
+      "assignee": "Bob",
+      "priority": "low"
+    })
+
+    updated = {
+      "ticket_id": "TICKET-400",
+      "step": "closed",
+      "assignee": "Charles",
+      "priority": "high"
+    }
+
+    is_changed, changes = self.tracker.receive_ticket(updated)
+
+    self.assertTrue(is_changed)
+    self.assertIn("step", changes)
+    self.assertIn("assignee",changes)
     self.assertIn("priority",changes)
-    self.assertEqual(changes["status"]["new"],"in-progress")
-    self.assertEqual(changes["assignee"]["new"],"charlie")
-    self.assertEqual(changes["priority"]["new"],"high")
+    self.assertEqual(changes["step"]["new"], "closed")
+    self.assertEqual(changes["assignee"]["new"], "Charles")
+    self.assertEqual(changes["priority"]["new"], "high")
+    
 
   def test_array_reordering_no_change(self):
     """Test that array re-ordering does not trigger change (order -insensitive)"""
