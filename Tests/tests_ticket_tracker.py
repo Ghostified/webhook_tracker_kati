@@ -70,8 +70,76 @@ class TestTicketTracker(unittest.TestCase):
 
   def test_array_reordering_no_change(self):
     """Test that array re-ordering does not trigger change (order -insensitive)"""
-        """Test that array re-ordering does not trigger change (order -insensitive)"""
+    v1 = {
+      "ticket_id" : "TAGS-ORDER",
+      "tags": ["high-priority", "sales" ,"follow-up"]
+    }
+    self.tracker.receive_ticket(v1)
 
+    v2 ={
+      "ticket_id": "TAGS-ORDER",
+      "tags": ["follow-up", "high-priority", "sales"] #same item, diffrent order
+    }
+
+    is_changed, changed = self.tracker.receive_ticket(v2)
+
+    self.assertFalse(is_changed)
+    self.assertEqual(changes, {})
+
+  def test_array_add_remove_items(self):
+    """Test that adding/removing from array is detected"""
+    v1 = {"ticket_id": "TAGS-CHANGE", "tags": ["urgent", "lead"]}
+    self.tracker.receive_ticket(v1)
+
+    v2 = {"ticket_id": "TAGS-CHANGE", "tags": ["urgent", "converted", "callback"]}
+
+    is_changed, changes = self.tracker.receive_ticket(v2)
+
+    self.assertTrue(is_changed)
+    self.assertIn("tags", changes)
+    old_tags = changes["tags"]["old"]
+    new_tags = changes["tags"]["new"]
+    self.assertIn("lead", old_tags)
+    self.assertIn("converted", new_tags)
+
+  def test_complex_payload_with_arrays(self):
+    """Test real-world-like payload with arrays and blanks"""
+    payload ={
+      "API": "1708890166457x310841261781680100",
+      "module": "Opportunity",
+      "ticket_id": "OPP-999",
+      "route": "",
+      "email_subject": "Interested in premium plan",
+      "responsible_employee": "",
+      "age": "",
+      "location": "New York",
+      "status": "open",
+      "source": "website",
+      "category": "sales",
+      "disposition": "",
+      "sub_disposition": "",
+      "comments": "",
+      "date_start": "1732197212000",
+      "date_end": "",
+      "created_by": "system",
+      "assigned_to": "",
+      "asset_name": "",
+      "tags": ["trial", "high-value"]
+    }
+
+    is_changed, changes = self.tracker.receive_ticket(payload)
+    self.assertTrue(is_changed)
+    self.assertIn("first_received", changes)
+
+    #update : add tag, change location , keep blanks
+    payload2 = payload.copy()
+    payload2["tags"] = ["high-value", "onboarding", "trial"] #reordered + added
+    payload2["loacation"] = "Remote"
+
+    is_changed, changes = self.tracker.receive_ticket(payload2)
+    self.assertTrue(is_changed)
+    self.assertIn("tags",changes)
+    self.assertIn("location",changes)
 
 
 
