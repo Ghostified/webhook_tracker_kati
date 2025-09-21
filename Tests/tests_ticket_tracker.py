@@ -119,7 +119,7 @@ class TestTicketTracker(unittest.TestCase):
       "tags": ["follow-up", "high-priority", "sales"] #same item, diffrent order
     }
 
-    is_changed, changed = self.tracker.receive_ticket(v2)
+    is_changed, changes = self.tracker.receive_ticket(v2)
 
     self.assertFalse(is_changed)
     self.assertEqual(changes, {})
