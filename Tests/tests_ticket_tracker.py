@@ -179,6 +179,42 @@ class TestTicketTracker(unittest.TestCase):
     self.assertIn("tags",changes)
     self.assertIn("location",changes)
 
+    #verify location changes 
+    self.assertEqual(changes["location"]["old"],"New York")
+    self.assertEqual(changes["location"]["new"], "Remote")
+
+    #verify tags; location added
+    added = [t for t in changes["tags"]["new"] if t not in changes["tags"]["old"]]
+    removed = [t for t in changes["tags"]["old"] if t not in changes ["tags"]["new"]]
+    self.assertIn("onboarding", added)
+    self.assertEqual(removed, [])
+
+def test_persistence_to_file(self):
+  """Test that tickets are saved to and loaded from json file"""
+  payload = {"ticket_id": "TICKET-500" , "step": "open", "tags": ["test"]}
+  self.tracker.receive_ticket(payload)
+
+  #create new tracker (forces reload from file)
+  new_tracker = TicketTracker(db_file=TEST_DB)
+  loaded = new_tracker.get_ticket("TICKET-500")
+
+  self.assertIsNotNone(loaded)
+  self.asseertEqual(loaded["step"], "open")
+  self.assertEqual(loaded["tags"],"test")
+
+
+def test_get_all_tickets(self):
+  """Test get_all_tickets returns all tickets"""
+  self.tracker.receive_ticket({"ticket_id": "TICKET-100", "step": "open"})
+  self.tracker.receive_ticket({"ticket_id": "TICKET-200", "step":"closed"})
+
+  all_tickets = self.tracker.get_all_tickets()
+  self.assertEqual(len(all_tickets), 2)
+  self.assertIn("TICKET-100", all_tickets)
+  self.assertIn("TICKET-200", all_tickets)
+
+  
+
 
 
   
