@@ -213,10 +213,11 @@ def test_get_all_tickets(self):
   self.assertIn("TICKET-100", all_tickets)
   self.assertIn("TICKET-200", all_tickets)
 
-  
 
+def test_get_ticket_returns_none_if_not_found(self):
+  """Test get-ticket returns None if ticket does not exist"""
+  result = self.tracker.get_ticket("UNKNOWN")
+  self.assertIsNone(result)
 
-
-  
-
-    
+if __name__ == '__main__':
+  unittest.main()
