@@ -63,12 +63,12 @@ def webhook():
 def get_tickets():
     tickets = tracker.get_all_tickets()
 
-    # Fixed: was 'step', should be 'status'
-    status_filter = request.args.get('status')
+    # Filter tickets by status, 
+    status_filter = request.args.get('step')
     if status_filter:
         filtered_tickets = {}
         for tid, ticket in tickets.items():
-            if ticket.get('status') == status_filter:
+            if ticket.get('step') == status_filter:
                 filtered_tickets[tid] = ticket
         return jsonify(filtered_tickets)
 
