@@ -26,7 +26,7 @@ class TestTicketTracker(unittest.TestCase):
     """Test receiving a new ticket for the first time"""
     payload = {
       "id": "TICKET-100",
-      "status": "open",
+      "step": "open",
       "assignee": "Alice"
     }
 
@@ -35,12 +35,13 @@ class TestTicketTracker(unittest.TestCase):
     #Check response
     self.assertTrue(is_changed)
     self.assertIn("first_received", changes)
-    self.assertEqual(changes["first_received"], "This is the first time this tecket has been received")
+    self.assertEqual(changes["first_received"], "This is the first time this ticket has been received")
 
     #Check ticket was saved
     saved = self.tracker.get_ticket("TICKET-100")
-    self.assertIsNone(saved)
+    self.assertIsNotNone(saved)
     self.assertEqual(saved["step"], "open")
+    self.assertEqual(saved["assignee"], "Alice")
 
   def  test_detect_status_change(self):
     """Test if  status change  is detected"""
@@ -172,7 +173,7 @@ class TestTicketTracker(unittest.TestCase):
     #update : add tag, change location , keep blanks
     payload2 = payload.copy()
     payload2["tags"] = ["high-value", "onboarding", "trial"] #reordered + added
-    payload2["loacation"] = "Remote"
+    payload2["location"] = "Remote"
 
     is_changed, changes = self.tracker.receive_ticket(payload2)
     self.assertTrue(is_changed)

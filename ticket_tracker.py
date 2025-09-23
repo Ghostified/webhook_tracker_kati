@@ -46,16 +46,24 @@ class TicketTracker:
     """Compare old ticket and new ticket , return dict and diffrences"""
     changes = {}
     if old_ticket is None:
-      return{"first_received: " "This is the first time this ticket has been received"}
+      return{"first_received": "This is the first time this ticket has been received"}
     
     for key, new_value in new_ticket.items():
       old_value = old_ticket.get(key)
+
+      #Skip internal files
+      if key == "received_at":
+        continue
+
+      #Debug
+      # print(f" Comparing {key}: {old_value} vs {new_value} → Equal: {self._values_equal(old_value, new_value)}")
+
 
       #skip if both are blank /empty (treat " " and None as the same)
       if self._is_blank(old_value) and self._is_blank(new_value):
         continue
 
-      #Use deep comparison (to handle lists, dicts etc)
+      #Use deep comparison to detect meaningful change (to handle lists, dicts etc)
       if not self._values_equal(old_value, new_value):
         changes[key] = {
           "old": old_value,
@@ -80,7 +88,7 @@ class TicketTracker:
     
     #Handle Lists : compare ads unordered
     if isinstance(val1, list) and isinstance(val2, list):
-      return self._unordered_list_equal(val1,val2)
+      return self._unordered_lists_equal(val1,val2)
     
     #Handle Dicts: compare via sorted json
     if isinstance(val1, dict) and isinstance(val2, dict):
@@ -90,22 +98,76 @@ class TicketTracker:
     #default comparisons 
     return val1 == val2
   
+
   def _unordered_lists_equal(self, list1, list2):
-    """Compare two lists without order , even with dicts inside"""
+    """Compare two lists without order, safely handling strings ,numbers, dicts"""
     if len(list1) != len(list2):
       return False
     
-    def make_hashable(item):
+    def make_comparable(item):
       if isinstance(item, dict):
-        return json.dumps(item, sort_keys=True, separators=(',', ':'))
+        return tuple(sorted((k, make_comparable(v)) for k, v in item.items()))
       elif isinstance(item, list):
-        return tuple(make_hashable(x) for x in item)
-      return item
-    
-    hashed1 = [make_hashable(item) for item in list1]
-    hashed2 = [make_hashable(item) for item in list2]
+        return tuple(make_comparable(i) for i in item)
+      else:
+        return item #string numbers etc
+      
 
-    return Counter(hashed1) == Counter(hashed2)
+    try:
+      #convert all items to comparable forms
+      sorted1 = sorted(make_comparable(x) for x in list1)
+      sorted2 = sorted(make_comparable(x) for x in list2)
+      return sorted1 == sorted2
+    except Exception:
+      #fallback: direct comparison (order- sensitive)
+      return list1 == list2
+    
+    
+    # def make_hashable(item):
+    #   if isinstance(item, dict):
+    #     return('dict', tuple(sorted((k, make_hashable(v)) for k, v in item.items())))
+    #   elif isinstance(item, self):
+    #     return ('list', tuple(make_hashable(i) for i in item))
+    #   else:
+    #     return('other', item)
+      
+    # try:
+    #   from collections import Counter
+    #   hashed1 = [make_hashable(x) for x in list1]
+    #   hashed2 = [make_hashable(x) for x in list2]
+    #   return Counter(hashed1) == Counter(hashed2)
+    # except Exception:
+    #   return list1 == list2 #fallback
+  
+  # def _unordered_lists_equal(self, list1, list2):
+  #   """Compare two lists without order , even with dicts inside"""
+  #   if len(list1) != len(list2):
+  #     return False
+    
+  #   def make_hashable(item):
+  #     if isinstance(item, dict):
+  #       return ('__dict__', tuple(sorted(
+  #         (k, make_hashable(v)) for k, v in item.items()
+  #       )))
+  #     elif isinstance(item, list):
+  #       return ('__list__', tuple(make_hashable(x) for x in item))
+  #     else:
+  #       return item #string ,numbers etc. 
+      
+  #   hashed1 = [make_hashable(item) for item in list1]
+  #   hashed2 = [make_hashable(item) for item in list2]
+
+  #   from collections import Counter
+  #   return Counter(hashed1) == Counter(hashed2)
+    #     return json.dumps(item, sort_keys=True, separators=(',', ':'))
+    #   elif isinstance(item, list):
+    #     return tuple(make_hashable(x) for x in item)
+    #   return item
+    
+    # hashed1 = [make_hashable(item) for item in list1]
+    # hashed2 = [make_hashable(item) for item in list2]
+
+    # return Counter(hashed1) == Counter(hashed2)
 
   
   def get_all_tickets(self):
