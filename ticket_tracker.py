@@ -122,53 +122,6 @@ class TicketTracker:
       #fallback: direct comparison (order- sensitive)
       return list1 == list2
     
-    
-    # def make_hashable(item):
-    #   if isinstance(item, dict):
-    #     return('dict', tuple(sorted((k, make_hashable(v)) for k, v in item.items())))
-    #   elif isinstance(item, self):
-    #     return ('list', tuple(make_hashable(i) for i in item))
-    #   else:
-    #     return('other', item)
-      
-    # try:
-    #   from collections import Counter
-    #   hashed1 = [make_hashable(x) for x in list1]
-    #   hashed2 = [make_hashable(x) for x in list2]
-    #   return Counter(hashed1) == Counter(hashed2)
-    # except Exception:
-    #   return list1 == list2 #fallback
-  
-  # def _unordered_lists_equal(self, list1, list2):
-  #   """Compare two lists without order , even with dicts inside"""
-  #   if len(list1) != len(list2):
-  #     return False
-    
-  #   def make_hashable(item):
-  #     if isinstance(item, dict):
-  #       return ('__dict__', tuple(sorted(
-  #         (k, make_hashable(v)) for k, v in item.items()
-  #       )))
-  #     elif isinstance(item, list):
-  #       return ('__list__', tuple(make_hashable(x) for x in item))
-  #     else:
-  #       return item #string ,numbers etc. 
-      
-  #   hashed1 = [make_hashable(item) for item in list1]
-  #   hashed2 = [make_hashable(item) for item in list2]
-
-  #   from collections import Counter
-  #   return Counter(hashed1) == Counter(hashed2)
-    #     return json.dumps(item, sort_keys=True, separators=(',', ':'))
-    #   elif isinstance(item, list):
-    #     return tuple(make_hashable(x) for x in item)
-    #   return item
-    
-    # hashed1 = [make_hashable(item) for item in list1]
-    # hashed2 = [make_hashable(item) for item in list2]
-
-    # return Counter(hashed1) == Counter(hashed2)
-
   
   def get_all_tickets(self):
     """Return all stored tickets"""
