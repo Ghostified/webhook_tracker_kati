@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width", initial-scale="1.0"/>
+    <title>Webhook Dashboard</title>
+    <link rel="stylesheet" href="{{url_for('static'. filename='styles.css')}}">
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>
+          <span>Webhook Dashboard</span>
+        </h1>
+        <p>Total Tickets: <strong id="ticket-count">?</strong> |Auto-Refreshing Every 10N Seconds</p>
+      </header>
+
+      <main class="content">
+        <div class="content">
+          <div id="Tickets-conatainer">
+            <!-- Tickets will be loaded here by js -->
+          </div>
+        </div>
+      </main>
+      <footer>
+        <p>
+          Data Powered by Flask  & Python.
+          View raw JSON : <a href="/tickets" target="_blank">/tickets</a> |
+          Endpoint: <code>/webhook</code>
+        </p>
+      </footer>
+    </div>
+
+    <script src="{{url_for('static', filename='script.js')}}"></script>
+  </body>
+
+</html>
