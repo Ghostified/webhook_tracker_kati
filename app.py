@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from ticket_tracker import TicketTracker 
 
 app = Flask(__name__)
@@ -81,10 +81,27 @@ def get_ticket(ticket_id):
         return jsonify({"error": "Ticket not found"}), 404
     return jsonify(ticket)
 
-@app.route('/', methods=['GET'])
+# @app.route('/', methods=['GET'])
+# def home():
+#     count = len(tracker.get_all_tickets())
+#     return f"<h1> Ticket Webhook Tracker</h1><p>Total tickets: {count}</p><a href='/tickets'>View All Tickets</a>"
+
+@app.route('/')
 def home():
     count = len(tracker.get_all_tickets())
-    return f"<h1> Ticket Webhook Tracker</h1><p>Total tickets: {count}</p><a href='/tickets'>View All Tickets</a>"
+    return f"""
+    <h1>Webhook Tracker</h1>
+    <p>Total Tickets: {count}</p>
+    <ul>
+        <li><a href='/tickets'> View All Tickets (JSON)</a></li>
+        <li><a href='/dashboard'> Go to Dashboard</a></li>
+    </ul>
+"""
+
+@app.route('/dashboard')
+def dashboard():
+    tickets = tracker.get_all_tickets()
+    return render_template('index.html', tickets=tickets)
 
 if __name__ == '__main__':
     app.run(port=3000, debug=True)

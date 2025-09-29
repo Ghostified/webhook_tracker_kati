@@ -6,10 +6,23 @@ function refreshDashboard(){
   fetch('/tickets')
   .then(response => response.json())
   .then(data => {
-    const container = document.getElementById('/tickets-container');
+    const container = document.getElementById('tickets-container');
+    const countElement = document.getElementById('ticket-count');
+
+    if (!container){
+      console.error("Tickets-Container not found in HTML")
+      return;
+    }
+
+    if (!countElement){
+      console.error("Ticket count not found in container ");
+      return;
+    }
+
     const count = Object.keys(data).length;
 
-    document.getElementById('ticket-count').textContent = count;
+    // document.getElementById('ticket-count').textContent = count;
+    countElement.textContent = count;
 
     let html = '';
 
@@ -23,7 +36,7 @@ function refreshDashboard(){
         let tagsHtml = '';
         if(Array.isArray(ticket.tags) && ticket.tags.length > 0) {
           tagsHtml = '<p><strong>Tags: </strong> ' + 
-          tickets.tags.map(tag => `<span class="tag">${tag}</span>`).join('') +
+          ticket.tags.map(tag => `<span class="tag">${tag}</span>`).join('') +
           '</p>';
         }
 
@@ -31,7 +44,7 @@ function refreshDashboard(){
         <div class="ticket">
         <h3>${ticketId} ${step}</h3>
         <p><strong>Last Updated:</strong>${received}</p>
-        ${tagHtml}
+        ${tagsHtml}
         <p><strong>Source:</strong> ${ticket.module || 'N/A'}</p>
         <p><strong>Email:</strong> ${ticket.email_subject || 'No subject'}"</p>
         </div>
@@ -43,13 +56,40 @@ function refreshDashboard(){
   })
   .catch(err => {
     console.error("Error loading payload", err);
-    document.getElementById('tickets-container').innerHTML = 
-    '<p style="color:red;">Failed to load Data. Check if the server is running...</p>';
+    const container = document.getElementById('tickets-conatainer');
+    if (container) {
+      container.innerHTML = `
+      <p style="color:red;">
+      Failed to load Data . <br>
+      Check:</br>
+      1. Is server running? (<a href="/tickets">tickets</a>)<br>
+      2. Any Errors on terminal?</br>
+      3. Correct file names?
+      </p>
+      `;
+    }
   });
 }
 
 //initial load
 document.addEventListener('DOMContentLoaded', () => {
   refreshDashboard(); //Load Once On Start
-  setInterval(refreshDashboard, AUTO_REFRESH_INTERVAL); //then auto refresh
+  setInterval(refreshDashboard, AUTO_REFRESH_INTERVAL);
+  
+  //Add toast notification element
+  const toast = document.getElementById('div');
+  toast.id = 'toast';
+  toast.style.display = 'none';
+  toast.style.position = 'fixed';
+  toast.style.top ='20px';
+  toast.style.right = '20px';
+  toast.style.background = '#27ae60';
+  toast.style.color = 'white';
+  toast.style.padding = '12px 20px'
+  toast.style.boarderRadius = '6px';
+  toast.style.zIndex = '1000';
+  toast.style.boxshadow = '0 4px 12px rgba(0,0,0,0.2)';
+  document.body.appendChild(toast);
 });
+
+//use flask to send "new_ticket" event via SSE Later

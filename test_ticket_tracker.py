@@ -200,7 +200,7 @@ def test_persistence_to_file(self):
   loaded = new_tracker.get_ticket("TICKET-500")
 
   self.assertIsNotNone(loaded)
-  self.asseertEqual(loaded["step"], "open")
+  self.assertEqual(loaded["step"], "open")
   self.assertEqual(loaded["tags"],"test")
 
 
