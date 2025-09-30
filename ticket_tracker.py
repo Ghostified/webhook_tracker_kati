@@ -1,24 +1,53 @@
+"""
+This class manages the storage, retrival , and change detection of ticket data
+Each user has their own file (e.g user_data/user123.json) for full isolation
+
+"""
+
 import json
 import os
 from datetime import datetime
 from collections import Counter
 
 class TicketTracker:
-  def __init__(self, db_file="tickets.json"):
-    self.db_file = db_file
+  def __init__(self, user_id="default"):
+    """
+    Initialize tracker  for a specific user
+    Creates a unique JSON file per user under 'user_data/'
+    """
+    self.user_id = user_id
+    self.db_file = f"user_data/{user_id}.json"
+
+    #ensure that the directory exists
+    os.makedirs("user_data",exist_ok=True)
+
+    #Load existing tickets from file
     self.tickets = self.load_tickets()
 
   def load_tickets(self):
-    """Load tickets from Json File"""
+    """
+    Save current tickets data from the user JSON file
+    If file does not exist or is corrupted , return empty dict. 
+    """
     if os.path.exists(self.db_file):
-      with open(self.db_file, 'r') as f:
-        return json.load(f)
+      try:
+        with open(self.db_file, 'r') as f:
+          return json.load(f)
+      except (json.JSONDecodeError, PermissionError) as e:
+        print(f"warning: could not read the {self.db_file}: {e}")
+        return {}
     return{}
   
   def save_tickets(self):
-    """Save current tickets to JSON file"""
-    with open(self.db_file, 'w') as f:
-      json.dump(self.tickets, f , indent=2)
+    """
+    Save current tickets data from the user JSON file
+    handles errors gracefully. 
+    """
+    try:
+      with open(self.db_file, 'w') as f:
+        json.dump(self.tickets, f , indent=2)
+    except Exception as e:
+      print(f"Error for saving data for{self.user_id}: {e}")
 
   def receive_ticket(self, payload):
     """
