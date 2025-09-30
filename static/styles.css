@@ -72,12 +72,28 @@ body {
 
 .status {
   font-weight: bold;
-  font-size: 0.95rem;
+  font-size: 0.95em;
   background: #e74c3c;
   color: white;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   margin-left: 0.5rem;
+}
+
+.step[style*="open"], .status {
+  background: #3498db;
+}
+
+.step[style*="closed"], .status {
+  background: #e74c3c;
+}
+
+.step[style*="in-progress"],.status {
+  background: #f39c12;
+}
+
+.step[style*="new"]{
+  background: #9b59b6;
 }
 
 .tag {
