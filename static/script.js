@@ -14,7 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
 function refreshDashboard(){
   console.log("Refreshing payload data...");
   fetch('/tickets')
+<<<<<<< HEAD
   .then(response =>  {
+=======
+  .then(response => {
+>>>>>>> main
     if(!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   })
