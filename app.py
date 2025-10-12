@@ -1,107 +1,106 @@
-# app.py
-from flask import Flask, request, jsonify, render_template
+"""
+app.py
+Main flask application
+Handles: 
+- Serving the dashboard per user
+-Receiving webhooks
+-Fetching and clearing ticket data
+All data is separated by user_id.
+"""
+
+import os
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from ticket_tracker import TicketTracker 
 
 app = Flask(__name__)
-tracker = TicketTracker()  # Create one instance of our tracker
+#Serve the main dashboard page
+@app.route('/<user_id>')
+def dashboard(user_id):
+    """
+    Serves the dashboard for a sepecific user
+    Validates user_id formart to prevent path traversal attcks
+    """
+    if not is_valid_user_id(user_id):
+        return "Invalid User ID", 400
+    return render_template('index.html', user_id=user_id)
 
-@app.route('/webhook', methods=['POST'])
-def webhook():
+#Webhook endpoint: Receive ticket data
+@app.route('/webhook/<user_id>', methods=['POST'])
+def webhook(user_id):
+    """
+    Accept POST Requests containing ticket updates
+    Each user has their own endpoint: /webhook/abc123
+    """
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "Invalid user ID"}), 400
+    
+    #create tracker for this user
+    tracker = TicketTracker(user_id=user_id)
+
+    #Parse incoming Json
     payload = request.get_json()
     if not payload:
-        return jsonify({"error": "No JSON payload"}), 400
-
-    try:
+        return jsonify({"error"  : "No JSON Payload"}), 400
+    
+    try: 
+        #Process the ticket
         is_changed, changes = tracker.receive_ticket(payload)
         ticket_id = payload.get('id') or payload.get('ticket_id')
 
-        # Type safety
-        if not isinstance(changes, dict):
-            print(f" Unexpected changes type: {type(changes)} - {changes}")
-            changes = {}
-
-        # Log to console
+        #Log changes to console
         if is_changed and changes:
-            print(f"\n CHANGES DETECTED in Ticket {ticket_id}:")
-            for field, change in changes.items():
-                if field == "first_received":
-                    print(f"    {change}")
-                else:
-                    old_val = change.get('old', 'N/A')
-                    new_val = change.get('new', 'N/A')
-
-                    #special log for arrays
-                    if isinstance(old_val, list) and isinstance(new_val, list):
-                        added = [item for item in new_val if item not in old_val]
-                        removed = [item for item in old_val if item not in new_val]
-
-                        change_summary = []
-                        if added:
-                            change_summary.append(f"added {added}")
-                        if removed:
-                            change_summary.append(f"removed {removed}")
-                        if not added and not removed:
-                            change_summary = ["(reordered)"]
-
-                        print(f"    {field}: {change_summary}")
-                    else:
-                        print(f"   {field}: '{old_val}' to '{new_val}'") 
-        else:
-            print(f"\n Ticket {ticket_id} updated (no changes detected)")
+            ch_str = ", ".join(changes.keys())
+            print(f"User[{user_id}] Ticket[{ticket_id}] changed: {ch_str}")
 
         return jsonify({
             "received": True,
+            "user_id": user_id,
             "ticket_id": ticket_id,
             "has_changes": is_changed,
-            "changes": changes
+            "changes":changes
         })
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
 
-@app.route('/tickets', methods=['GET'])
-def get_tickets():
-    tickets = tracker.get_all_tickets()
+#API: get all tickets for a user
+@app.route('/tickets/<user_id>')
+def get_tickets(user_id):
+    """
+    Return all the tickets for a given user
+    Used to display data o =n the dashboard
+    """
+    if not is_valid_user_id(user_id):
+        return jsonify({"Error": "Invalid user id"}), 400
+    
+    tracker = TicketTracker(user_id=user_id)
+    return jsonify(tracker.get_all_tickets())
 
-    # Filter tickets by status, 
-    status_filter = request.args.get('step')
-    if status_filter:
-        filtered_tickets = {}
-        for tid, ticket in tickets.items():
-            if ticket.get('step') == status_filter:
-                filtered_tickets[tid] = ticket
-        return jsonify(filtered_tickets)
+#API: Clear all data for a user 
+@app.route('/clear/<user_id>', methods=['POST'])
+def clear_data(user_id):
+    """
+    This deletes all  ticket data for a user
+    Triggered from thr dashboard UI
+    """
+    if not is_valid_user_id(user_id):
+        return jsonify({"error": "Invalid user Id"}), 400
+    
+    tracker = TicketTracker(user_id=user_id)
+    tracker.clear_all()
+    print(f"Cleared data for the user: {user_id}")
+    return jsonify({"status": "cleared"})
 
-    return jsonify(tickets)
+#Utility ; validate the user_id to prevent security issues
+def is_valid_user_id(user_id):
+    """
+    Simple validation mechnaism , alphanumeric and of reasonable length.
+    prevents path trabversal (e.g.. '../../etc/passwrd').
+    """
+    return user_id.isalnum() and 1 <= len(user_id) <= 50
 
-@app.route('/tickets/<ticket_id>', methods=['GET'])
-def get_ticket(ticket_id):
-    ticket = tracker.get_ticket(ticket_id)  
-    if not ticket:
-        return jsonify({"error": "Ticket not found"}), 404
-    return jsonify(ticket)
-
-# @app.route('/', methods=['GET'])
-# def home():
-#     count = len(tracker.get_all_tickets())
-#     return f"<h1> Ticket Webhook Tracker</h1><p>Total tickets: {count}</p><a href='/tickets'>View All Tickets</a>"
-
-@app.route('/')
-def home():
-    count = len(tracker.get_all_tickets())
-    return f"""
-    <h1>Webhook Tracker</h1>
-    <p>Total Tickets: {count}</p>
-    <ul>
-        <li><a href='/tickets'> View All Tickets (JSON)</a></li>
-        <li><a href='/dashboard'> Go to Dashboard</a></li>
-    </ul>
-"""
-
-@app.route('/dashboard')
-def dashboard():
-    tickets = tracker.get_all_tickets()
-    return render_template('index.html', tickets=tickets)
-
-if __name__ == '__main__':
+#Start server
+if  __name__=='__main__':
     app.run(port=3000, debug=True)
+
