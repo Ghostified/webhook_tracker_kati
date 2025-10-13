@@ -2,16 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width initial-scale="1.0"/>
+    <meta name="viewport" content="width=device-width initial-scale=1.0"/>
     <title>Webhook Dashboard</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='styles.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css')}}">
   </head>
   <body>
+
+
     <div class="container">
       <header class="header">
         <h1>
-          <span>Webhook Dashboard</span>
+          <span>Ticket Webhook Dashboard</span>
         </h1>
+
+        <!-- statistics cards -->
+         <div class="stats-container">
+          <div class="stat-card total">
+            <h3>Total Tickets</h3>
+            <p id="total-count">0</p>
+          </div>
+          <div class="stat-card new">
+            <h3>New Tickets</h3>
+            <p id="new-count">0</p>
+          </div>
+          <div class="stat-card updated">
+            <h3>Updated Tickets</h3>
+            <p id="updated-count">0</p>
+          </div>
+         </div>
+
+         <!-- last updated info -->
+          <p id="last-updated">Loading...</p>
+      </header>
+
+      <!-- webhook URL Display -->
+       <div class="webhook-url-box">
+        <strong>Your Webhook URL:</strong><br>
+        <code id="webhook-url">Loading...</code>
+       </div>
+
+
+       <!-- Filters -->
+        <div class="filters">
+
+        </div>
+
+
+
         <p>Total Tickets: <strong id="ticket-count">?</strong> |Auto-Refreshing Every 10 Seconds</p>
       </header>
 
