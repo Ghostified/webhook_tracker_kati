@@ -13,6 +13,8 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from ticket_tracker import TicketTracker 
 
 app = Flask(__name__)
+
+
 #Serve the main dashboard page
 @app.route('/<user_id>')
 def dashboard(user_id):
@@ -102,5 +104,5 @@ def is_valid_user_id(user_id):
 
 #Start server
 if  __name__=='__main__':
-    app.run(port=3000, debug=True)
+    app.run(port=5500, debug=True)
 
