@@ -44,26 +44,44 @@
 
        <!-- Filters -->
         <div class="filters">
-          <select>
-            <option value="">All Steps</option>
-            <option value="new">New</option>
-            <option value="open">Open</option>
-            <option value="in-progres">In Progress</option>
-            <option value="closed">closed</option>
-          </select>
+          <!-- step filter -->
+           <div class="filter-group">
+            <label for="filter-step">Step</label>
+            <select id="filter-step" class="custom-select">
+              <option value="">All Steps</option>
+              <option value="new">New</option>
+              <option value="open">Open</option>
+              <option value="in-progres">In Progress</option>
+              <option value="closed">Close</option>
+            </select>
+           </div>
 
-          <input type="text" id="filter-ticket-id" placeholder="Filter By Ticket ID">
-          <input type="datetime-local" id="filter-date-from" placeholder="From Date">
-          <input type="datetime-local" id="filter-date-to" placeholder="To Date">
+           <!-- ticket id filter -->
+            <div class="filter-group">
+              <label for="filter-ticket-id">Ticket ID</label>
+              <input type="text" id="filter-ticket-id" placeholder="e.g, TICKET-001">
+            </div>
 
-          <button id="apply-filters">Apply Filters</button>
-          <button id="clear-filters">Reset</button>
-        </div>
+            <!-- From Date Time -->
+             <div class="filter-group datetime">
+              <label>From</label>
+              <input type="date" id="filter-date-from-date">
+              <input type="time" id="filter-date-from-time">
+             </div>
 
-        <!-- Clear Data Button -->
-         <div class="actions">
-          <button id="clear-data"> Clear All Data</button>
-         </div>
+             <!-- to Date Time -->
+              <div class="filter-group datetime">
+                <label >To</label>
+                <input type="date" id="filter-date-to-date">
+                <input type="time" id="filter-date-to-time">
+              </div>
+
+              <!-- action buttons -->
+               <div class="filter-actions">
+                <button id="apply-filters" class="btn-primary">Apply</button>
+                <button id="clear-filters" class="btn-secondary">Reset</button>
+               </div>
+          </div>
 
          <!-- Render Tickets -->
           <main class="content">
