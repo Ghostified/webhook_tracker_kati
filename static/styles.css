@@ -107,52 +107,118 @@ body {
   word-break: break-all;
 }
 
-/* filters */
-.filters{
+.filter-group{
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
+.filter-group label {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+/* Custom select Dropdown */
+.custom-select {
+  position: relative;
+  border: 1px solid #ccc;
+  background: white;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  appearance: none; /* remove default arrow */
+  background-image: url("image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 16px;
+  outline: none;
+}
+
+.custom-select:focus {
+  border-color: #2c3e50;
+  box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.2);
+}
+
+/* Date & Time Inputs */
+.filter-group.datetime {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  min-width: 220px;
+}
+
+.filter-group.datetime input[type="date"],
+.filter-group.datetime input[type="time"] {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.filter-group.datetime input[type="date"]:focus,
+.filter-group.datetime input[type="time"]:focus {
+  border-color: #2c3e50;
+  outline: none;
+}
+
+/* Better Mobile experience */
+@media (max-width: 768px) {
+  .filter-group,
+  .filter-group.datetime {
+    min-width: auto;
+    grid-template-columns: 1fr;
+  }
+
+    .filter-group.datetime input[type="date"],
+    .filter-group.datetime input[type="time"] {
+      width: 100%;
+    }
+}
+
+
+
+/* Actions Buttons*/
+.filter-actions {
   display: flex;
   gap: 0.5rem;
-  margin: 0 0.2rem 1.5rem;
-  flex-wrap: wrap;
-  align-items: center;
+  align-self: end;
+  margin-left: auto;
 }
 
-.filters select,
-.filters input,
-.filters button{
-  padding: 0.5 rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.95rem;
-}
-
-.filters button{
-  background: #2c3e50;
-  color: white;
-  cursor: pointer;
+.btn-primary,
+.btn-secondary{
+  padding: 0.6rem 1rem;
   border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-weight: 500;
 }
 
-.filters button:hover{
+.btn-primary{
+  background: #2c3e50 ;
+  color: white;
+}
+
+.btn-primary:hover{
   background: #1a252f;
 }
 
-/* Actions */
-.actions {
-  margin: 0 2rem 1.5rem;
-  text-align: right;
-}
-
-.actions button{
-  background: #e74c3c;
+.btn-secondary {
+  background: #95a5a6;
   color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
 }
 
-.actions button:hover{
-  background: #c0392b;
+.btn-secondary:hover {
+  background: #7f8c8d;
 }
 
 /* Ticket List */
@@ -204,4 +270,27 @@ body {
   border-radius: 6px;
   font-size: 0.8em;
   font-weight: 500;
+}
+
+.empty {
+  color: #95a5a6;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem 0;
+}
+
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  border-top: 1px solid #eee;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .filters, .stats-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
