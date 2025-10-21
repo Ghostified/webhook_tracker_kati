@@ -29,4 +29,34 @@ document.addEventListener('DOMContentLoaded', () => {
   //start loading data
   refreshDashboard();
   setInterval(refreshDashboard, AUTO_REFRESH_INTERNAL);
+
+  //set up event listeners
+  document.getElementById('apply-filters').addEventListener('click', refreshDashboard);
+  document.getElementById('clear-filters').addEventListener('click', resetFilters);
+  document.getElementById('clear-data').addEventListener('click', clearAllData);
 })
+
+function resetFilters(){
+  document.getElementById('filter-step').value = '';
+  document.getElementById('filter-ticket-id').value = '';
+  document.getElementById('filter-date-from-date').value = '';
+  document.getElementById('filter-date-from-time').value = '';
+  document.getElementById('filter-date-to-date').value = '';
+  document.getElementById('filter-date-to-time').value = '';
+  refreshDashboard();
+}
+
+function clearAllData(){
+  if(confirm("Are you sure you want to delete All your data?")) {
+    fetch(`/clear/${window.USER_ID}`, {method: 'POST'})
+    .then(() => {
+      showNotification("All Data Cleared");
+      refreshDashboard();
+    })
+    .catch(err => console.error("clear all data failed", err));
+  }
+}
+
+function refreshDashboard() {
+  
+}
