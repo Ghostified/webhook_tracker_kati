@@ -113,3 +113,15 @@ function refreshDashboard() {
     container.innerHTML = `<p style="color:red;">Failed to load data.</p>`;
   });
 }
+
+// Render ticket list with sorting and filtering
+function renderTickets(container, data){
+  //convert to array and sort by most recent first 
+  const tickets = Object.entries(data)
+  .map(([id, t]) => ({id, ...t }))
+  .sort((a, b) => new Date(b.received_at) - new Date(a.received_at));
+
+  //Get filter values
+  const stepFilter = document.getElementById('filter-step').value.toLowerCase();
+  const idFilter = document.getElementById('filter-ticket-id').value.trim().toLowerCase();
+}
