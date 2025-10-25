@@ -124,4 +124,21 @@ function renderTickets(container, data){
   //Get filter values
   const stepFilter = document.getElementById('filter-step').value.toLowerCase();
   const idFilter = document.getElementById('filter-ticket-id').value.trim().toLowerCase();
+
+  const fromDateStr = document.getElementById('filter-date-from-date').value;
+  const fromTimeStr = document.getElementById('filter-date-from-time').value || '00:00';
+  const toDateStr = document.getElementById('filter-date-to-date').value;
+  const toTimeStr = document.getElementById('filter-date-to-time').value || '23:59';
+
+  const dateFrom = fromDateStr ? new Date(`${fromDateStr}T${fromTimeStr}`) : null;
+  const dateTo = toDateStr ? new Date(`${toDateStr}T${toTimeStr}`) : null;
+
+  //Apply Filters
+  const filtered = tickets.filter(ticket => {
+    if (stepFilter && (ticket.step || '').toLowerCase() !== stepFilter) return false;
+    if (idFilter && !String(ticket.id || ticket.ticket_id).toLocaleLowerCase().includes(idFilter)) return false;
+  })
+
+  //combine date and time inputs into fulltime datetime objects
+
 }
