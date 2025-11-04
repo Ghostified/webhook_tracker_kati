@@ -138,11 +138,7 @@ function renderTickets(container, data){
     if (stepFilter && (ticket.step || '').toLowerCase() !== stepFilter) return false;
     if (idFilter && !String(ticket.id || ticket.ticket_id).toLocaleLowerCase().includes(idFilter)) return false;
   })
-    //Apply Filters
-  const filtered = tickets.filter(ticket => {
-    if (stepFilter && (ticket.step || '').toLowerCase() !== stepFilter) return false;
-    if (idFilter && !String(ticket.id || ticket.ticket_id).toLocaleLowerCase().includes(idFilter)) return false;
-  })
+
 
   //combine date and time inputs into fulltime datetime objects
 
